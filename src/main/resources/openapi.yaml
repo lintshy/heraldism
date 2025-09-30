@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Dota Service API
+  description: API for managing Dota 2 players, matches, and providing draft advice
+  version: 1.0.0
+  contact:
+    name: Heraldism Team
+    email: support@heraldism.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+  - url: https://api.heraldism.com/api
+    description: Production server
+
+tags:
+  - name: Players
+    description: Player management operations
+  - name: Matches
+    description: Match data and scoring operations
+  - name: Draft
+    description: Draft advice and analysis operations
+
+paths:
+  /players:
+    get:
+      tags:
+        - Players
+      summary: List all players
+      operationId: listPlayers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      tags:
+        - Players
+      summary: Create a new player
+      operationId: createPlayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Player created
+        '400':
+          description: Invalid input
+        '409':
+          description: Player already exists
+
+  /players/{playerId}:
+    get:
+      tags:
+        - Players
+      summary: Get player by ID
+      operationId: getPlayer
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Player not found
+    put:
+      tags:
+        - Players
+      summary: Update player
+      operationId: updatePlayer
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Player updated
+        '404':
+          description: Player not found
+    delete:
+      tags:
+        - Players
+      summary: Delete player
+      operationId: deletePlayer
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player deleted
+        '404':
+          description: Player not found
+
+  /matches/refresh:
+    post:
+      tags:
+        - Matches
+      summary: Refresh matches from OpenDota
+      operationId: refreshMatches
+      parameters:
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matches refreshed
+
+  /matches/{matchId}:
+    get:
+      tags:
+        - Matches
+      summary: Get match by ID
+      operationId: getMatch
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Match not found
+
+  /matches/{matchId}/score:
+    post:
+      tags:
+        - Matches
+      summary: Compute match score
+      operationId: computeScore
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Score computed
+
+  /draft/advise:
+    post:
+      tags:
+        - Draft
+      summary: Get draft advice
+      operationId: getDraftAdvice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Draft advice generated

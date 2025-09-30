@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dota-service
+  namespace: default
+  labels:
+    app: dota-service
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dota-service
+  template:
+    metadata:
+      labels:
+        app: dota-service
+        version: v1
+    spec:
+      serviceAccountName: dota-service-sa
+      containers:
+      - name: dota-service
+        image: dota-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: DYNAMODB_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: dota-service-config
+              key: dynamodb.endpoint
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: dota-service-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dota-service-config
+  namespace: default
+data:
+  dynamodb.endpoint: "https://dynamodb.us-east-1.amazonaws.com"
+  application.yml: |
+    spring:
+      application:
+        name: dota-service
+    server:
+      port: 8080

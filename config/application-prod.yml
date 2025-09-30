@@ -1,0 +1,55 @@
+# Production environment configuration
+spring:
+  profiles:
+    active: prod
+
+# Logging - less verbose in production
+logging:
+  level:
+    root: WARN
+    com.jaba.heraldism: INFO
+    software.amazon.awssdk: WARN
+  file:
+    name: /var/log/dota-service/application.log
+    max-size: 100MB
+    max-history: 30
+
+# AWS Configuration - Production
+aws:
+  region: ${AWS_REGION:us-east-1}
+  dynamodb:
+    endpoint: https://dynamodb.${AWS_REGION:us-east-1}.amazonaws.com
+
+# DynamoDB Table Names
+dynamodb:
+  tables:
+    players: dota-service-prod-players
+    matches: dota-service-prod-matches
+    match-scores: dota-service-prod-match-scores
+    idempotency: dota-service-prod-idempotency
+
+# Application-specific configuration
+app:
+  opendota:
+    base-url: https://api.opendota.com/api
+    timeout: 30s
+    rate-limit: 60
+  rag:
+    base-url: ${RAG_SERVICE_URL}
+    timeout: 60s
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL}
+    enabled: true
+  idempotency:
+    ttl-hours: 24
+    enabled: true
+
+# Management/Actuator - restricted in production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never

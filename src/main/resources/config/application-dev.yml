@@ -1,0 +1,21 @@
+# Development specific configuration
+spring:
+  application:
+    name: dota-service
+
+# Discord Webhook Configuration
+discord:
+  webhook:
+    url: ${DISCORD_WEBHOOK_URL:}  # Set this as an environment variable or in your IDE run configuration
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.jaba.heraldism: DEBUG
+
+# WebClient configuration
+webclient:
+  timeout:
+    connect: 5000
+    response: 10000

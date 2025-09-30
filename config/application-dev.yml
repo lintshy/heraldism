@@ -1,0 +1,47 @@
+# Development environment configuration
+spring:
+  profiles:
+    active: dev
+
+# Logging - more verbose in dev
+logging:
+  level:
+    root: INFO
+    com.jaba.heraldism: DEBUG
+    software.amazon.awssdk: DEBUG
+    org.springframework.web: DEBUG
+  file:
+    name: logs/dota-service-dev.log
+
+# AWS Configuration - Local DynamoDB
+aws:
+  region: us-east-1
+  dynamodb:
+    endpoint: http://localhost:8000
+  credentials:
+    access-key: local
+    secret-key: local
+
+# DynamoDB Table Names
+dynamodb:
+  tables:
+    players: dota-service-dev-players
+    matches: dota-service-dev-matches
+    match-scores: dota-service-dev-match-scores
+    idempotency: dota-service-dev-idempotency
+
+# Application-specific configuration
+app:
+  opendota:
+    base-url: https://api.opendota.com/api
+    timeout: 30s
+    rate-limit: 60
+  rag:
+    base-url: http://localhost:8081
+    timeout: 60s
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+    enabled: false
+  idempotency:
+    ttl-hours: 24
+    enabled: true
